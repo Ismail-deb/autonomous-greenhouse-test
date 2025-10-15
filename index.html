@@ -1,957 +1,123 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Greenhouse Monitoring System</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary-green": "#17cf17",
-                        "dark-background": "#111811",
-                        "lighter-dark-surface": "#3c533c",
-                        "primary-text": "#ffffff",
-                        "secondary-text": "#9db89d",
-                        "interactive-secondary": "#f97316",
-                        "warning-yellow": "#eab308",
-                        "danger-red": "#ef4444",
-                        "info-blue": "#3b82f6"
-                    },
-                    fontFamily: {
-                        "display": ["Public Sans"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "0.75rem",
-                        "xl": "1rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .sensor-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
+        body {
+            background-color: #f0f8f0;
+            color: #333;
+            line-height: 1.6;
         }
-        .sensor-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        header {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
         }
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            overflow-y: auto;
+        .sensor-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 1rem 0;
+            color: #2e7d32;
         }
-        .page {
-            display: none;
-        }
-        .active-page {
-            display: block;
-        }
-        .sidebar.collapsed {
-            width: 70px;
-        }
-        .sidebar.collapsed .sidebar-text {
-            display: none;
-        }
-        .sidebar.collapsed .logo-text {
-            display: none;
-        }
-        .sidebar.collapsed .collapse-btn {
-            transform: rotate(180deg);
-        }
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        .collapsible-content.expanded {
-            max-height: 500px;
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 2rem;
         }
     </style>
 </head>
-<body class="bg-dark-background font-display text-primary-text">
-    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
-        <div class="flex h-full grow">
-            <!-- Collapsible Sidebar -->
-            <aside id="sidebar" class="sidebar w-64 bg-dark-background p-4 flex flex-col justify-between border-r border-lighter-dark-surface">
-                <div class="flex flex-col gap-6">
-                    <div class="flex gap-3 items-center px-2">
-                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Greenhouse logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4l_JrNdNxAeUEcxLSkmLIvnzTM9z8_yfYcuFCa9l24hqdH3vbq4gZmu0Odh4flF3Vc0EzR40NazpkdxEMN0FGpvtAnN_6mUA3cIAoK3zuMY3Bk0tHGWxx1m0gIZ0V1BDqmOFrrsTm-qjA_7R6APr7_1h0nCrml6GNyfdYm7FWAqFL0BsmUrgVu4IMV9rA7c5y69-1xpGBdxWO9zEd2wZ9VnyIZeIGVeQnMawSiWTGNoDKSE5Q6tVNyE1HYDnzafenvayLs8bAkWc-");'></div>
-                        <div class="logo-text flex flex-col">
-                            <h1 class="text-primary-text text-base font-bold leading-normal">Greenhouse</h1>
-                            <p class="text-secondary-text text-sm font-normal leading-normal">Monitoring System</p>
-                        </div>
-                    </div>
-                    
-                    <button id="collapse-btn" class="collapse-btn text-secondary-text hover:text-primary-text self-end">
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </button>
-                    
-                    <nav class="flex flex-col gap-2">
-                        <a id="dashboard-link" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary-green/20" href="#">
-                            <span class="material-symbols-outlined text-primary-green">dashboard</span>
-                            <span class="sidebar-text text-primary-green text-sm font-medium leading-normal">Dashboard</span>
-                        </a>
-                        <a id="sensors-link" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-lighter-dark-surface/50" href="#">
-                            <span class="material-symbols-outlined text-secondary-text">sensors</span>
-                            <span class="sidebar-text text-secondary-text text-sm font-medium leading-normal">Sensors</span>
-                        </a>
-                    </nav>
+<body>
+    <header>
+        <h1>🌱 Greenhouse Monitoring System</h1>
+        <p>Real-time climate control and monitoring for optimal crop growth</p>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🌡️ Temperature</h3>
                 </div>
-            </aside>
-
-            <!-- Main Content -->
-            <main class="flex-1">
-                <!-- Dashboard Page -->
-                <div id="dashboard-page" class="page active-page p-6 lg:p-8">
-                    <div class="flex flex-wrap justify-between gap-4 items-center mb-8">
-                        <div class="flex flex-col gap-1">
-                            <h1 class="text-primary-text text-3xl font-bold leading-tight tracking-[-0.02em]">Greenhouse Dashboard</h1>
-                            <p class="text-secondary-text text-base font-normal leading-normal">Real-time monitoring of environmental conditions</p>
-                        </div>
-                        <div class="flex gap-2 items-center">
-                            <p class="text-secondary-text text-sm flex items-center gap-2"><span class="material-symbols-outlined text-sm">update</span> Last updated: <span id="last-updated">Just now</span></p>
-                            <button id="refresh-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-interactive-secondary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                                <span class="material-symbols-outlined mr-2">refresh</span>
-                                <span class="truncate">Refresh</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Info Note -->
-                    <div class="bg-lighter-dark-surface/20 border border-lighter-dark-surface rounded-lg p-4 mb-6">
-                        <p class="text-center text-secondary-text flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">info</span>
-                            Click on any sensor card below to view detailed information and recommendations
-                        </p>
-                    </div>
-
-                    <!-- Sensor Data Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Temperature Card -->
-                        <div id="temperature-card" class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col" data-sensor="temperature">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">thermostat</span>
-                                <p class="text-base font-medium text-secondary-text">Temperature</p>
-                            </div>
-                            <div class="flex items-baseline gap-1 mb-2">
-                                <p id="temperature-value" class="text-4xl font-bold text-primary-text">24</p>
-                                <span class="text-xl font-medium text-secondary-text">°C</span>
-                            </div>
-                            <div class="w-full bg-lighter-dark-surface rounded-full h-1.5 mb-2">
-                                <div id="temperature-bar" class="bg-primary-green h-1.5 rounded-full" style="width: 60%"></div>
-                            </div>
-                            <div id="temperature-status" class="text-xs text-primary-green">Optimal</div>
-                        </div>
-
-                        <!-- Humidity Card -->
-                        <div id="humidity-card" class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col" data-sensor="humidity">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">water_drop</span>
-                                <p class="text-base font-medium text-secondary-text">Humidity</p>
-                            </div>
-                            <div class="flex items-baseline gap-1 mb-2">
-                                <p id="humidity-value" class="text-4xl font-bold text-primary-text">65</p>
-                                <span class="text-xl font-medium text-secondary-text">%</span>
-                            </div>
-                            <div class="w-full bg-lighter-dark-surface rounded-full h-1.5 mb-2">
-                                <div id="humidity-bar" class="bg-primary-green h-1.5 rounded-full" style="width: 65%"></div>
-                            </div>
-                            <div id="humidity-status" class="text-xs text-primary-green">Optimal</div>
-                        </div>
-
-                        <!-- CO2 Card -->
-                        <div id="co2-card" class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col" data-sensor="co2">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">co2</span>
-                                <p class="text-base font-medium text-secondary-text">CO₂ Levels</p>
-                            </div>
-                            <div class="flex items-baseline gap-1 mb-2">
-                                <p id="co2-value" class="text-4xl font-bold text-primary-text">800</p>
-                                <span class="text-base font-medium text-secondary-text">ppm</span>
-                            </div>
-                            <div class="w-full bg-lighter-dark-surface rounded-full h-1.5 mb-2">
-                                <div id="co2-bar" class="bg-primary-green h-1.5 rounded-full" style="width: 80%"></div>
-                            </div>
-                            <div id="co2-status" class="text-xs text-primary-green">Good</div>
-                        </div>
-
-                        <!-- Light Card -->
-                        <div id="light-card" class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col" data-sensor="light">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">light_mode</span>
-                                <p class="text-base font-medium text-secondary-text">Light</p>
-                            </div>
-                            <div class="flex items-baseline gap-1 mb-2">
-                                <p id="light-value" class="text-4xl font-bold text-primary-text">12k</p>
-                                <span class="text-base font-medium text-secondary-text">lux</span>
-                            </div>
-                            <div class="w-full bg-lighter-dark-surface rounded-full h-1.5 mb-2">
-                                <div id="light-bar" class="bg-primary-green h-1.5 rounded-full" style="width: 75%"></div>
-                            </div>
-                            <div id="light-status" class="text-xs text-primary-green">Adequate</div>
-                        </div>
-
-                        <!-- Pressure Card -->
-                        <div id="pressure-card" class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col" data-sensor="pressure">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">compress</span>
-                                <p class="text-base font-medium text-secondary-text">Pressure</p>
-                            </div>
-                            <div class="flex items-baseline gap-1 mb-2">
-                                <p id="pressure-value" class="text-4xl font-bold text-primary-text">1012</p>
-                                <span class="text-base font-medium text-secondary-text">hPa</span>
-                            </div>
-                            <div class="w-full bg-lighter-dark-surface rounded-full h-1.5 mb-2">
-                                <div id="pressure-bar" class="bg-primary-green h-1.5 rounded-full" style="width: 90%"></div>
-                            </div>
-                            <div id="pressure-status" class="text-xs text-primary-green">Stable</div>
-                        </div>
-
-                        <!-- Soil Moisture Card -->
-                        <div id="soil-card" class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col" data-sensor="soil">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">water_damage</span>
-                                <p class="text-base font-medium text-secondary-text">Soil Moisture</p>
-                            </div>
-                            <div class="flex items-baseline gap-1 mb-2">
-                                <p id="soil-value" class="text-4xl font-bold text-primary-text">55</p>
-                                <span class="text-xl font-medium text-secondary-text">%</span>
-                            </div>
-                            <div class="w-full bg-lighter-dark-surface rounded-full h-1.5 mb-2">
-                                <div id="soil-bar" class="bg-primary-green h-1.5 rounded-full" style="width: 55%"></div>
-                            </div>
-                            <div id="soil-status" class="text-xs text-primary-green">Optimal</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sensors Page -->
-                <div id="sensors-page" class="page p-6 lg:p-8">
-                    <div class="flex flex-wrap justify-between gap-4 items-center mb-8">
-                        <div class="flex flex-col gap-1">
-                            <h1 class="text-primary-text text-3xl font-bold leading-tight tracking-[-0.02em]">Connected Sensors</h1>
-                            <p class="text-secondary-text text-base font-normal leading-normal">Click on any sensor to view live data and history</p>
-                        </div>
-                        <div class="flex gap-2 items-center">
-                            <p class="text-secondary-text text-sm flex items-center gap-2"><span class="material-symbols-outlined text-sm">update</span> Last updated: <span id="sensors-last-updated">Just now</span></p>
-                            <button id="sensors-refresh-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-interactive-secondary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                                <span class="material-symbols-outlined mr-2">refresh</span>
-                                <span class="truncate">Refresh</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Sensors Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Temperature Sensor -->
-                        <div class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col cursor-pointer" data-sensor="temperature">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">thermostat</span>
-                                <div>
-                                    <h3 class="text-base font-medium text-primary-text">Temperature Sensor</h3>
-                                    <p class="text-xs text-secondary-text">DHT22_AM2302</p>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline gap-1 mt-4">
-                                <p id="sensor-temperature-value" class="text-3xl font-bold text-primary-text">24</p>
-                                <span class="text-lg font-medium text-secondary-text">°C</span>
-                            </div>
-                            <div class="text-xs text-secondary-text mt-2">Status: <span class="text-primary-green">Connected</span></div>
-                        </div>
-
-                        <!-- Humidity Sensor -->
-                        <div class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col cursor-pointer" data-sensor="humidity">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">water_drop</span>
-                                <div>
-                                    <h3 class="text-base font-medium text-primary-text">Humidity Sensor</h3>
-                                    <p class="text-xs text-secondary-text">DHT22_AM2302</p>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline gap-1 mt-4">
-                                <p id="sensor-humidity-value" class="text-3xl font-bold text-primary-text">65</p>
-                                <span class="text-lg font-medium text-secondary-text">%</span>
-                            </div>
-                            <div class="text-xs text-secondary-text mt-2">Status: <span class="text-primary-green">Connected</span></div>
-                        </div>
-
-                        <!-- CO2 Sensor -->
-                        <div class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col cursor-pointer" data-sensor="co2">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">co2</span>
-                                <div>
-                                    <h3 class="text-base font-medium text-primary-text">CO₂ Sensor</h3>
-                                    <p class="text-xs text-secondary-text">MQ135</p>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline gap-1 mt-4">
-                                <p id="sensor-co2-value" class="text-3xl font-bold text-primary-text">800</p>
-                                <span class="text-base font-medium text-secondary-text">ppm</span>
-                            </div>
-                            <div class="text-xs text-secondary-text mt-2">Status: <span class="text-primary-green">Connected</span></div>
-                        </div>
-
-                        <!-- Light Sensor -->
-                        <div class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col cursor-pointer" data-sensor="light">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">light_mode</span>
-                                <div>
-                                    <h3 class="text-base font-medium text-primary-text">Light Sensor</h3>
-                                    <p class="text-xs text-secondary-text">LDR</p>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline gap-1 mt-4">
-                                <p id="sensor-light-value" class="text-3xl font-bold text-primary-text">12k</p>
-                                <span class="text-base font-medium text-secondary-text">lux</span>
-                            </div>
-                            <div class="text-xs text-secondary-text mt-2">Status: <span class="text-primary-green">Connected</span></div>
-                        </div>
-
-                        <!-- Pressure Sensor -->
-                        <div class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col cursor-pointer" data-sensor="pressure">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">compress</span>
-                                <div>
-                                    <h3 class="text-base font-medium text-primary-text">Pressure Sensor</h3>
-                                    <p class="text-xs text-secondary-text">BMP280</p>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline gap-1 mt-4">
-                                <p id="sensor-pressure-value" class="text-3xl font-bold text-primary-text">1012</p>
-                                <span class="text-base font-medium text-secondary-text">hPa</span>
-                            </div>
-                            <div class="text-xs text-secondary-text mt-2">Status: <span class="text-primary-green">Connected</span></div>
-                        </div>
-
-                        <!-- Soil Moisture Sensor -->
-                        <div class="sensor-card bg-dark-background border border-lighter-dark-surface p-6 rounded-xl flex flex-col cursor-pointer" data-sensor="soil">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary-green text-2xl">water_damage</span>
-                                <div>
-                                    <h3 class="text-base font-medium text-primary-text">Soil Moisture Sensor</h3>
-                                    <p class="text-xs text-secondary-text">Capacitive</p>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline gap-1 mt-4">
-                                <p id="sensor-soil-value" class="text-3xl font-bold text-primary-text">55</p>
-                                <span class="text-lg font-medium text-secondary-text">%</span>
-                            </div>
-                            <div class="text-xs text-secondary-text mt-2">Status: <span class="text-primary-green">Connected</span></div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- Modal for Sensor Details -->
-    <div id="sensor-modal" class="modal">
-        <div class="modal-content bg-dark-background border border-lighter-dark-surface rounded-xl p-6 max-w-2xl w-full mx-4">
-            <div class="flex justify-between items-center mb-4">
-                <h2 id="modal-title" class="text-2xl font-bold"></h2>
-                <button id="close-modal" class="material-symbols-outlined text-secondary-text hover:text-primary-text">close</button>
+                <div class="sensor-value">24°C</div>
             </div>
-            <div id="modal-content" class="mt-4">
-                <!-- Content will be populated by JavaScript -->
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>💧 Humidity</h3>
+                </div>
+                <div class="sensor-value">65%</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>💨 CO2 Levels</h3>
+                </div>
+                <div class="sensor-value">800ppm</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>🌍 Pressure</h3>
+                </div>
+                <div class="sensor-value">1012hPa</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>☀️ Light</h3>
+                </div>
+                <div class="sensor-value">12000lux</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>💧 Soil Moisture</h3>
+                </div>
+                <div class="sensor-value">55%</div>
             </div>
         </div>
     </div>
-
-    <script>
-        // Mock data generator to simulate sensor readings
-        function mockDataGenerator() {
-            // Generate realistic sensor values with some variation
-            const baseTemp = 22 + (Math.random() * 4 - 2); // 20-24°C
-            const baseHumidity = 60 + (Math.random() * 10 - 5); // 55-65%
-            const baseCO2 = 450 + (Math.random() * 100 - 50); // 400-500ppm
-            const basePressure = 1013 + (Math.random() * 20 - 10); // 1003-1023 hPa
-            const baseLight = 10000 + (Math.random() * 5000 - 2500); // 7500-12500 lux
-            const baseSoil = 50 + (Math.random() * 10 - 5); // 45-55%
-            
-            return {
-                timestamp: new Date(),
-                temperature: parseFloat(baseTemp.toFixed(1)),
-                humidity: parseFloat(baseHumidity.toFixed(1)),
-                co2: Math.round(baseCO2),
-                pressure: parseFloat(basePressure.toFixed(2)),
-                light: Math.round(baseLight),
-                soil: parseFloat(baseSoil.toFixed(1))
-            };
-        }
-
-        // Generate historical data for charts
-        function generateHistoricalData(sensorType, hours = 24) {
-            const data = [];
-            const now = new Date();
-            
-            for (let i = hours; i >= 0; i--) {
-                const time = new Date(now);
-                time.setHours(time.getHours() - i);
-                
-                // Generate data with realistic trends
-                let value;
-                switch(sensorType) {
-                    case 'temperature':
-                        value = 22 + Math.sin(i * 0.5) * 3 + (Math.random() * 2 - 1);
-                        break;
-                    case 'humidity':
-                        value = 60 + Math.cos(i * 0.3) * 10 + (Math.random() * 5 - 2.5);
-                        break;
-                    case 'co2':
-                        value = 450 + Math.sin(i * 0.2) * 100 + (Math.random() * 50 - 25);
-                        break;
-                    case 'light':
-                        value = 10000 + Math.sin(i * 0.4) * 3000 + (Math.random() * 2000 - 1000);
-                        break;
-                    case 'pressure':
-                        value = 1013 + Math.cos(i * 0.1) * 10 + (Math.random() * 5 - 2.5);
-                        break;
-                    case 'soil':
-                        value = 50 + Math.sin(i * 0.3) * 15 + (Math.random() * 8 - 4);
-                        break;
-                    default:
-                        value = Math.random() * 100;
-                }
-                
-                data.push({
-                    time: time,
-                    value: sensorType === 'temperature' || sensorType === 'pressure' || sensorType === 'soil' ? 
-                           parseFloat(value.toFixed(1)) : 
-                           sensorType === 'light' ? Math.round(value) : 
-                           Math.round(value)
-                });
-            }
-            
-            return data;
-        }
-
-        // Sensor details for modal
-        const sensorDetails = {
-            temperature: {
-                title: "Temperature Sensor",
-                icon: "thermostat",
-                unit: "°C",
-                description: "Measures ambient air temperature in the greenhouse.",
-                optimalRange: "18-27°C",
-                criticalRange: "<10°C or >35°C"
-            },
-            humidity: {
-                title: "Humidity Sensor",
-                icon: "water_drop",
-                unit: "%",
-                description: "Measures relative humidity in the greenhouse air.",
-                optimalRange: "50-70%",
-                criticalRange: "<30% or >85%"
-            },
-            co2: {
-                title: "CO₂ Sensor",
-                icon: "co2",
-                unit: "ppm",
-                description: "Measures carbon dioxide concentration in the greenhouse.",
-                optimalRange: "800-1200 ppm",
-                criticalRange: "<300 ppm or >2000 ppm"
-            },
-            light: {
-                title: "Light Sensor",
-                icon: "light_mode",
-                unit: "lux",
-                description: "Measures light intensity in the greenhouse.",
-                optimalRange: "10,000-15,000 lux",
-                criticalRange: "<5,000 lux or >20,000 lux"
-            },
-            pressure: {
-                title: "Pressure Sensor",
-                icon: "compress",
-                unit: "hPa",
-                description: "Measures atmospheric pressure around the greenhouse.",
-                optimalRange: "1000-1030 hPa",
-                criticalRange: "<980 hPa or >1040 hPa"
-            },
-            soil: {
-                title: "Soil Moisture Sensor",
-                icon: "water_damage",
-                unit: "%",
-                description: "Measures moisture content in the soil.",
-                optimalRange: "40-60%",
-                criticalRange: "<20% or >80%"
-            }
-        };
-
-        // Update dashboard with new data
-        function updateDashboard() {
-            const sensorData = mockDataGenerator();
-            
-            // Update temperature
-            document.getElementById('temperature-value').textContent = sensorData.temperature;
-            document.getElementById('sensor-temperature-value').textContent = sensorData.temperature;
-            const tempPercentage = Math.min(100, Math.max(0, (sensorData.temperature - 10) / (35 - 10) * 100));
-            document.getElementById('temperature-bar').style.width = `${tempPercentage}%`;
-            
-            // Temperature status
-            let tempStatus = "Optimal";
-            let tempStatusClass = "text-primary-green";
-            if (sensorData.temperature < 18) {
-                tempStatus = "Too Low";
-                tempStatusClass = "text-blue-400";
-            } else if (sensorData.temperature > 28) {
-                tempStatus = "Too High";
-                tempStatusClass = "text-red-400";
-            }
-            document.getElementById('temperature-status').textContent = tempStatus;
-            document.getElementById('temperature-status').className = `text-xs ${tempStatusClass}`;
-            
-            // Update humidity
-            document.getElementById('humidity-value').textContent = sensorData.humidity;
-            document.getElementById('sensor-humidity-value').textContent = sensorData.humidity;
-            const humidityPercentage = Math.min(100, Math.max(0, sensorData.humidity));
-            document.getElementById('humidity-bar').style.width = `${humidityPercentage}%`;
-            
-            // Humidity status
-            let humidityStatus = "Optimal";
-            let humidityStatusClass = "text-primary-green";
-            if (sensorData.humidity < 45) {
-                humidityStatus = "Low";
-                humidityStatusClass = "text-yellow-400";
-            } else if (sensorData.humidity > 75) {
-                humidityStatus = "High";
-                humidityStatusClass = "text-red-400";
-            }
-            document.getElementById('humidity-status').textContent = humidityStatus;
-            document.getElementById('humidity-status').className = `text-xs ${humidityStatusClass}`;
-            
-            // Update CO2
-            document.getElementById('co2-value').textContent = sensorData.co2;
-            document.getElementById('sensor-co2-value').textContent = sensorData.co2;
-            const co2Percentage = Math.min(100, Math.max(0, (sensorData.co2 - 200) / (2000 - 200) * 100));
-            document.getElementById('co2-bar').style.width = `${co2Percentage}%`;
-            
-            // CO2 status
-            let co2Status = "Good";
-            let co2StatusClass = "text-primary-green";
-            if (sensorData.co2 < 300) {
-                co2Status = "Low";
-                co2StatusClass = "text-yellow-400";
-            } else if (sensorData.co2 > 1500) {
-                co2Status = "High";
-                co2StatusClass = "text-red-400";
-            }
-            document.getElementById('co2-status').textContent = co2Status;
-            document.getElementById('co2-status').className = `text-xs ${co2StatusClass}`;
-            
-            // Update light
-            document.getElementById('light-value').textContent = (sensorData.light / 1000).toFixed(1) + 'k';
-            document.getElementById('sensor-light-value').textContent = (sensorData.light / 1000).toFixed(1) + 'k';
-            const lightPercentage = Math.min(100, Math.max(0, sensorData.light / 20000 * 100));
-            document.getElementById('light-bar').style.width = `${lightPercentage}%`;
-            
-            // Light status
-            let lightStatus = "Adequate";
-            let lightStatusClass = "text-primary-green";
-            if (sensorData.light < 5000) {
-                lightStatus = "Low";
-                lightStatusClass = "text-yellow-400";
-            } else if (sensorData.light > 18000) {
-                lightStatus = "High";
-                lightStatusClass = "text-red-400";
-            }
-            document.getElementById('light-status').textContent = lightStatus;
-            document.getElementById('light-status').className = `text-xs ${lightStatusClass}`;
-            
-            // Update pressure
-            document.getElementById('pressure-value').textContent = sensorData.pressure;
-            document.getElementById('sensor-pressure-value').textContent = sensorData.pressure;
-            const pressurePercentage = Math.min(100, Math.max(0, (sensorData.pressure - 980) / (1040 - 980) * 100));
-            document.getElementById('pressure-bar').style.width = `${pressurePercentage}%`;
-            
-            // Pressure status
-            let pressureStatus = "Stable";
-            let pressureStatusClass = "text-primary-green";
-            if (sensorData.pressure < 1000) {
-                pressureStatus = "Low";
-                pressureStatusClass = "text-yellow-400";
-            } else if (sensorData.pressure > 1030) {
-                pressureStatus = "High";
-                pressureStatusClass = "text-red-400";
-            }
-            document.getElementById('pressure-status').textContent = pressureStatus;
-            document.getElementById('pressure-status').className = `text-xs ${pressureStatusClass}`;
-            
-            // Update soil moisture
-            document.getElementById('soil-value').textContent = sensorData.soil;
-            document.getElementById('sensor-soil-value').textContent = sensorData.soil;
-            const soilPercentage = Math.min(100, Math.max(0, sensorData.soil));
-            document.getElementById('soil-bar').style.width = `${soilPercentage}%`;
-            
-            // Soil status
-            let soilStatus = "Optimal";
-            let soilStatusClass = "text-primary-green";
-            if (sensorData.soil < 30) {
-                soilStatus = "Dry";
-                soilStatusClass = "text-yellow-400";
-            } else if (sensorData.soil > 80) {
-                soilStatus = "Waterlogged";
-                soilStatusClass = "text-red-400";
-            }
-            document.getElementById('soil-status').textContent = soilStatus;
-            document.getElementById('soil-status').className = `text-xs ${soilStatusClass}`;
-            
-            // Update timestamps
-            const now = "Just now";
-            document.getElementById('last-updated').textContent = now;
-            document.getElementById('sensors-last-updated').textContent = now;
-        }
-
-        // Add subtle animation to sensor values to indicate live data
-        function animateSensorValue(elementId, newValue) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            
-            // Add animation class
-            element.classList.add('animate-pulse');
-            
-            // Update value after a short delay
-            setTimeout(() => {
-                element.textContent = newValue;
-                // Remove animation class after animation completes
-                setTimeout(() => {
-                    element.classList.remove('animate-pulse');
-                }, 300);
-            }, 150);
-        }
-
-        // Enhanced update function with animations
-        function updateDashboardWithAnimation() {
-            const sensorData = mockDataGenerator();
-            
-            // Update temperature with animation
-            animateSensorValue('temperature-value', sensorData.temperature);
-            animateSensorValue('sensor-temperature-value', sensorData.temperature);
-            const tempPercentage = Math.min(100, Math.max(0, (sensorData.temperature - 10) / (35 - 10) * 100));
-            document.getElementById('temperature-bar').style.width = `${tempPercentage}%`;
-            
-            // Temperature status
-            let tempStatus = "Optimal";
-            let tempStatusClass = "text-primary-green";
-            if (sensorData.temperature < 18) {
-                tempStatus = "Too Low";
-                tempStatusClass = "text-blue-400";
-            } else if (sensorData.temperature > 28) {
-                tempStatus = "Too High";
-                tempStatusClass = "text-red-400";
-            }
-            document.getElementById('temperature-status').textContent = tempStatus;
-            document.getElementById('temperature-status').className = `text-xs ${tempStatusClass}`;
-            
-            // Update humidity with animation
-            animateSensorValue('humidity-value', sensorData.humidity);
-            animateSensorValue('sensor-humidity-value', sensorData.humidity);
-            const humidityPercentage = Math.min(100, Math.max(0, sensorData.humidity));
-            document.getElementById('humidity-bar').style.width = `${humidityPercentage}%`;
-            
-            // Humidity status
-            let humidityStatus = "Optimal";
-            let humidityStatusClass = "text-primary-green";
-            if (sensorData.humidity < 45) {
-                humidityStatus = "Low";
-                humidityStatusClass = "text-yellow-400";
-            } else if (sensorData.humidity > 75) {
-                humidityStatus = "High";
-                humidityStatusClass = "text-red-400";
-            }
-            document.getElementById('humidity-status').textContent = humidityStatus;
-            document.getElementById('humidity-status').className = `text-xs ${humidityStatusClass}`;
-            
-            // Update CO2 with animation
-            animateSensorValue('co2-value', sensorData.co2);
-            animateSensorValue('sensor-co2-value', sensorData.co2);
-            const co2Percentage = Math.min(100, Math.max(0, (sensorData.co2 - 200) / (2000 - 200) * 100));
-            document.getElementById('co2-bar').style.width = `${co2Percentage}%`;
-            
-            // CO2 status
-            let co2Status = "Good";
-            let co2StatusClass = "text-primary-green";
-            if (sensorData.co2 < 300) {
-                co2Status = "Low";
-                co2StatusClass = "text-yellow-400";
-            } else if (sensorData.co2 > 1500) {
-                co2Status = "High";
-                co2StatusClass = "text-red-400";
-            }
-            document.getElementById('co2-status').textContent = co2Status;
-            document.getElementById('co2-status').className = `text-xs ${co2StatusClass}`;
-            
-            // Update light with animation
-            const lightValue = (sensorData.light / 1000).toFixed(1) + 'k';
-            animateSensorValue('light-value', lightValue);
-            animateSensorValue('sensor-light-value', lightValue);
-            const lightPercentage = Math.min(100, Math.max(0, sensorData.light / 20000 * 100));
-            document.getElementById('light-bar').style.width = `${lightPercentage}%`;
-            
-            // Light status
-            let lightStatus = "Adequate";
-            let lightStatusClass = "text-primary-green";
-            if (sensorData.light < 5000) {
-                lightStatus = "Low";
-                lightStatusClass = "text-yellow-400";
-            } else if (sensorData.light > 18000) {
-                lightStatus = "High";
-                lightStatusClass = "text-red-400";
-            }
-            document.getElementById('light-status').textContent = lightStatus;
-            document.getElementById('light-status').className = `text-xs ${lightStatusClass}`;
-            
-            // Update pressure with animation
-            animateSensorValue('pressure-value', sensorData.pressure);
-            animateSensorValue('sensor-pressure-value', sensorData.pressure);
-            const pressurePercentage = Math.min(100, Math.max(0, (sensorData.pressure - 980) / (1040 - 980) * 100));
-            document.getElementById('pressure-bar').style.width = `${pressurePercentage}%`;
-            
-            // Pressure status
-            let pressureStatus = "Stable";
-            let pressureStatusClass = "text-primary-green";
-            if (sensorData.pressure < 1000) {
-                pressureStatus = "Low";
-                pressureStatusClass = "text-yellow-400";
-            } else if (sensorData.pressure > 1030) {
-                pressureStatus = "High";
-                pressureStatusClass = "text-red-400";
-            }
-            document.getElementById('pressure-status').textContent = pressureStatus;
-            document.getElementById('pressure-status').className = `text-xs ${pressureStatusClass}`;
-            
-            // Update soil moisture with animation
-            animateSensorValue('soil-value', sensorData.soil);
-            animateSensorValue('sensor-soil-value', sensorData.soil);
-            const soilPercentage = Math.min(100, Math.max(0, sensorData.soil));
-            document.getElementById('soil-bar').style.width = `${soilPercentage}%`;
-            
-            // Soil status
-            let soilStatus = "Optimal";
-            let soilStatusClass = "text-primary-green";
-            if (sensorData.soil < 30) {
-                soilStatus = "Dry";
-                soilStatusClass = "text-yellow-400";
-            } else if (sensorData.soil > 80) {
-                soilStatus = "Waterlogged";
-                soilStatusClass = "text-red-400";
-            }
-            document.getElementById('soil-status').textContent = soilStatus;
-            document.getElementById('soil-status').className = `text-xs ${soilStatusClass}`;
-            
-            // Update timestamps
-            const now = "Just now";
-            document.getElementById('last-updated').textContent = now;
-            document.getElementById('sensors-last-updated').textContent = now;
-        }
-
-        // Add CSS for animations
-        function addAnimationStyles() {
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes pulse {
-                    0% { opacity: 1; transform: scale(1); }
-                    50% { opacity: 0.7; transform: scale(1.05); }
-                    100% { opacity: 1; transform: scale(1); }
-                }
-                .animate-pulse {
-                    animation: pulse 0.3s ease-in-out;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Show sensor details in modal
-        function showSensorDetails(sensorType) {
-            const sensor = sensorDetails[sensorType];
-            const currentValue = document.getElementById(`${sensorType}-value`) ? 
-                                document.getElementById(`${sensorType}-value`).textContent : 
-                                'N/A';
-            
-            document.getElementById('modal-title').innerHTML = `
-                <span class="material-symbols-outlined text-primary-green mr-2">${sensor.icon}</span>
-                ${sensor.title}
-            `;
-            
-            // Generate historical data
-            const historicalData = generateHistoricalData(sensorType);
-            
-            // Create simple text-based history visualization
-            let historyHtml = '';
-            if (historicalData.length > 0) {
-                historyHtml = '<div class="mt-4"><h3 class="font-medium mb-2">Recent History:</h3><div class="grid grid-cols-2 gap-2 text-sm">';
-                // Show last 6 data points
-                for (let i = Math.max(0, historicalData.length - 6); i < historicalData.length; i++) {
-                    const dataPoint = historicalData[i];
-                    const timeString = dataPoint.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    historyHtml += `<div class="flex justify-between bg-lighter-dark-surface/20 p-2 rounded">
-                        <span>${timeString}:</span>
-                        <span>${dataPoint.value} ${sensor.unit}</span>
-                    </div>`;
-                }
-                historyHtml += '</div></div>';
-            }
-            
-            document.getElementById('modal-content').innerHTML = `
-                <div class="mb-6">
-                    <div class="flex items-baseline gap-2 mb-4">
-                        <span class="text-3xl font-bold">${currentValue}</span>
-                        <span class="text-secondary-text">${sensor.unit}</span>
-                    </div>
-                    <p class="text-secondary-text mb-4">${sensor.description}</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div class="bg-lighter-dark-surface/30 p-4 rounded-lg">
-                            <h3 class="font-medium mb-2 text-primary-green">Optimal Range</h3>
-                            <p class="text-sm">${sensor.optimalRange}</p>
-                        </div>
-                        <div class="bg-lighter-dark-surface/30 p-4 rounded-lg">
-                            <h3 class="font-medium mb-2 text-danger-red">Critical Range</h3>
-                            <p class="text-sm">${sensor.criticalRange}</p>
-                        </div>
-                    </div>
-                    
-                    ${historyHtml}
-                </div>
-            `;
-            
-            document.getElementById('sensor-modal').style.display = 'flex';
-        }
-
-        // Close modal
-        function closeSensorModal() {
-            document.getElementById('sensor-modal').style.display = 'none';
-        }
-
-        // Switch between pages
-        function switchPage(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active-page');
-            });
-            
-            // Show selected page
-            document.getElementById(pageId).classList.add('active-page');
-            
-            // Update active link
-            document.querySelectorAll('#sidebar nav a').forEach(link => {
-                link.classList.remove('bg-primary-green/20');
-                if (link.querySelector('.text-primary-green')) {
-                    link.querySelector('.text-primary-green').classList.remove('text-primary-green');
-                    link.querySelector('.text-primary-green').classList.add('text-secondary-text');
-                }
-            });
-            
-            if (pageId === 'dashboard-page') {
-                document.getElementById('dashboard-link').classList.add('bg-primary-green/20');
-                document.getElementById('dashboard-link').querySelector('.text-secondary-text').classList.remove('text-secondary-text');
-                document.getElementById('dashboard-link').querySelector('.text-secondary-text').classList.add('text-primary-green');
-            } else if (pageId === 'sensors-page') {
-                document.getElementById('sensors-link').classList.add('bg-primary-green/20');
-                document.getElementById('sensors-link').querySelector('.text-secondary-text').classList.remove('text-secondary-text');
-                document.getElementById('sensors-link').querySelector('.text-secondary-text').classList.add('text-primary-green');
-            }
-        }
-
-        // Toggle sidebar collapse
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const collapseBtn = document.getElementById('collapse-btn');
-            sidebar.classList.toggle('collapsed');
-            collapseBtn.classList.toggle('rotate-180');
-        }
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add animation styles
-            addAnimationStyles();
-            
-            // Set up real-time data updates
-            setInterval(updateDashboardWithAnimation, 3000); // Update every 3 seconds with animation
-            
-            // Set up refresh buttons
-            document.getElementById('refresh-btn').addEventListener('click', function() {
-                updateDashboardWithAnimation();
-                document.getElementById('last-updated').textContent = "Just now";
-            });
-            
-            document.getElementById('sensors-refresh-btn').addEventListener('click', function() {
-                updateDashboardWithAnimation();
-                document.getElementById('sensors-last-updated').textContent = "Just now";
-            });
-            
-            // Set up sensor card click events for dashboard
-            document.querySelectorAll('#dashboard-page .sensor-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const sensorType = this.getAttribute('data-sensor');
-                    showSensorDetails(sensorType);
-                });
-            });
-            
-            // Set up sensor card click events for sensors page
-            document.querySelectorAll('#sensors-page .sensor-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const sensorType = this.getAttribute('data-sensor');
-                    showSensorDetails(sensorType);
-                });
-            });
-            
-            // Set up page navigation
-            document.getElementById('dashboard-link').addEventListener('click', function(e) {
-                e.preventDefault();
-                switchPage('dashboard-page');
-            });
-            
-            document.getElementById('sensors-link').addEventListener('click', function(e) {
-                e.preventDefault();
-                switchPage('sensors-page');
-            });
-            
-            // Set up sidebar collapse
-            document.getElementById('collapse-btn').addEventListener('click', toggleSidebar);
-            
-            // Set up modal close button
-            document.getElementById('close-modal').addEventListener('click', closeSensorModal);
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('sensor-modal');
-                if (event.target === modal) {
-                    closeSensorModal();
-                }
-            });
-            
-            // Initial dashboard update
-            updateDashboardWithAnimation();
-        });
-    </script>
+    
+    <footer>
+        <p>Autonomous Greenhouse Monitoring System | Real-time Climate Control</p>
+    </footer>
 </body>
 </html>
