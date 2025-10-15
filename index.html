@@ -5,64 +5,281 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Greenhouse Monitoring System</title>
     <style>
+        :root {
+            --primary-green: #17cf17;
+            --dark-background: #111811;
+            --lighter-dark-surface: #3c533c;
+            --primary-text: #ffffff;
+            --secondary-text: #9db89d;
+            --interactive-secondary: #f97316;
+            --warning-yellow: #eab308;
+            --danger-red: #ef4444;
+            --info-blue: #3b82f6;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Public Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
-            background-color: #f0f8f0;
-            color: #333;
+            background-color: var(--dark-background);
+            color: var(--primary-text);
             line-height: 1.6;
         }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
         header {
             background: linear-gradient(135deg, #2e7d32, #4caf50);
             color: white;
             padding: 1rem;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 10px 10px;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin: 1.5rem 0;
         }
+
         .card {
-            background: white;
+            background: var(--dark-background);
+            border: 1px solid var(--lighter-dark-surface);
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
+            transition: all 0.3s ease;
         }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        }
+
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--lighter-dark-surface);
         }
+
         .sensor-value {
             font-size: 2.5rem;
             font-weight: 700;
             text-align: center;
             margin: 1rem 0;
-            color: #2e7d32;
+            color: var(--primary-green);
         }
+
+        .sensor-unit {
+            font-size: 1.2rem;
+            color: var(--secondary-text);
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: var(--lighter-dark-surface);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-green);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .status {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        .status-normal {
+            background-color: rgba(23, 207, 23, 0.2);
+            color: var(--primary-green);
+        }
+
+        .status-warning {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: var(--warning-yellow);
+        }
+
+        .status-alert {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger-red);
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .sensor-card {
+            background: var(--dark-background);
+            border: 1px solid var(--lighter-dark-surface);
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        }
+
+        .sensor-card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .sensor-card .sensor-model {
+            font-size: 0.85rem;
+            color: var(--secondary-text);
+        }
+
+        .sensor-card .sensor-data {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: var(--primary-green);
+        }
+
+        .sensor-card .sensor-status {
+            font-size: 0.85rem;
+            color: var(--secondary-text);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            border-bottom: 1px solid var(--lighter-dark-surface);
+            padding-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--lighter-dark-surface);
+            border: none;
+            border-radius: 5px;
+            color: var(--secondary-text);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background-color: var(--primary-green);
+            color: var(--dark-background);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .refresh-btn {
+            background-color: var(--interactive-secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background-color: #ea580c;
+        }
+
+        .last-updated {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
         footer {
             text-align: center;
             padding: 1rem;
-            color: #666;
+            color: var(--secondary-text);
             font-size: 0.9rem;
             margin-top: 2rem;
         }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-pulse {
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .sensor-value {
+                font-size: 2rem;
+            }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -71,47 +288,200 @@
     </header>
     
     <div class="container">
-        <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h3>🌡️ Temperature</h3>
-                </div>
-                <div class="sensor-value">24°C</div>
+        <div class="header-content">
+            <div>
+                <h2>Dashboard</h2>
+                <p>Real-time monitoring of environmental conditions</p>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>💧 Humidity</h3>
+            <div class="controls">
+                <div class="last-updated">
+                    <span class="material-symbols-outlined">update</span>
+                    <span id="last-updated">Just now</span>
                 </div>
-                <div class="sensor-value">65%</div>
+                <button id="refresh-btn" class="refresh-btn">
+                    <span class="material-symbols-outlined">refresh</span>
+                    <span>Refresh</span>
+                </button>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>💨 CO2 Levels</h3>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="dashboard">Dashboard</button>
+            <button class="tab" data-tab="sensors">Sensors</button>
+        </div>
+
+        <div class="tab-content active" id="dashboard-tab">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🌡️ Temperature</h3>
+                        <span class="material-symbols-outlined" style="color: var(--primary-green);">check_circle</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="temperature-value">24</span>
+                        <span class="sensor-unit">°C</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="temperature-bar" class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <div id="temperature-status" class="status status-normal">Optimal</div>
                 </div>
-                <div class="sensor-value">800ppm</div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💧 Humidity</h3>
+                        <span class="material-symbols-outlined" style="color: var(--primary-green);">check_circle</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="humidity-value">65</span>
+                        <span class="sensor-unit">%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="humidity-bar" class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <div id="humidity-status" class="status status-normal">Optimal</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💨 CO₂ Levels</h3>
+                        <span class="material-symbols-outlined" style="color: var(--primary-green);">check_circle</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="co2-value">800</span>
+                        <span class="sensor-unit">ppm</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="co2-bar" class="progress-fill" style="width: 80%"></div>
+                    </div>
+                    <div id="co2-status" class="status status-normal">Good</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>☀️ Light</h3>
+                        <span class="material-symbols-outlined" style="color: var(--primary-green);">check_circle</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="light-value">12</span>
+                        <span class="sensor-unit">k lux</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="light-bar" class="progress-fill" style="width: 75%"></div>
+                    </div>
+                    <div id="light-status" class="status status-normal">Adequate</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🌍 Pressure</h3>
+                        <span class="material-symbols-outlined" style="color: var(--primary-green);">check_circle</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="pressure-value">1012</span>
+                        <span class="sensor-unit">hPa</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="pressure-bar" class="progress-fill" style="width: 90%"></div>
+                    </div>
+                    <div id="pressure-status" class="status status-normal">Stable</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💧 Soil Moisture</h3>
+                        <span class="material-symbols-outlined" style="color: var(--primary-green);">check_circle</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="soil-value">55</span>
+                        <span class="sensor-unit">%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="soil-bar" class="progress-fill" style="width: 55%"></div>
+                    </div>
+                    <div id="soil-status" class="status status-normal">Optimal</div>
+                </div>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>🌍 Pressure</h3>
+        </div>
+
+        <div class="tab-content" id="sensors-tab">
+            <div class="header-content">
+                <div>
+                    <h2>Connected Sensors</h2>
+                    <p>Click on any sensor to view detailed information</p>
                 </div>
-                <div class="sensor-value">1012hPa</div>
+                <div class="controls">
+                    <div class="last-updated">
+                        <span class="material-symbols-outlined">update</span>
+                        <span id="sensors-last-updated">Just now</span>
+                    </div>
+                    <button id="sensors-refresh-btn" class="refresh-btn">
+                        <span class="material-symbols-outlined">refresh</span>
+                        <span>Refresh</span>
+                    </button>
+                </div>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>☀️ Light</h3>
+
+            <div class="sensor-grid">
+                <div class="sensor-card" data-sensor="temperature">
+                    <h3>🌡️ Temperature Sensor</h3>
+                    <div class="sensor-model">DHT22_AM2302</div>
+                    <div class="sensor-data">
+                        <span id="sensor-temperature-value">24</span>
+                        <span class="sensor-unit">°C</span>
+                    </div>
+                    <div class="sensor-status">Status: <span style="color: var(--primary-green);">Connected</span></div>
                 </div>
-                <div class="sensor-value">12000lux</div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>💧 Soil Moisture</h3>
+                
+                <div class="sensor-card" data-sensor="humidity">
+                    <h3>💧 Humidity Sensor</h3>
+                    <div class="sensor-model">DHT22_AM2302</div>
+                    <div class="sensor-data">
+                        <span id="sensor-humidity-value">65</span>
+                        <span class="sensor-unit">%</span>
+                    </div>
+                    <div class="sensor-status">Status: <span style="color: var(--primary-green);">Connected</span></div>
                 </div>
-                <div class="sensor-value">55%</div>
+                
+                <div class="sensor-card" data-sensor="co2">
+                    <h3>💨 CO₂ Sensor</h3>
+                    <div class="sensor-model">MQ135</div>
+                    <div class="sensor-data">
+                        <span id="sensor-co2-value">800</span>
+                        <span class="sensor-unit">ppm</span>
+                    </div>
+                    <div class="sensor-status">Status: <span style="color: var(--primary-green);">Connected</span></div>
+                </div>
+                
+                <div class="sensor-card" data-sensor="light">
+                    <h3>☀️ Light Sensor</h3>
+                    <div class="sensor-model">LDR</div>
+                    <div class="sensor-data">
+                        <span id="sensor-light-value">12</span>
+                        <span class="sensor-unit">k lux</span>
+                    </div>
+                    <div class="sensor-status">Status: <span style="color: var(--primary-green);">Connected</span></div>
+                </div>
+                
+                <div class="sensor-card" data-sensor="pressure">
+                    <h3>🌍 Pressure Sensor</h3>
+                    <div class="sensor-model">BMP280</div>
+                    <div class="sensor-data">
+                        <span id="sensor-pressure-value">1012</span>
+                        <span class="sensor-unit">hPa</span>
+                    </div>
+                    <div class="sensor-status">Status: <span style="color: var(--primary-green);">Connected</span></div>
+                </div>
+                
+                <div class="sensor-card" data-sensor="soil">
+                    <h3>💧 Soil Moisture Sensor</h3>
+                    <div class="sensor-model">Capacitive</div>
+                    <div class="sensor-data">
+                        <span id="sensor-soil-value">55</span>
+                        <span class="sensor-unit">%</span>
+                    </div>
+                    <div class="sensor-status">Status: <span style="color: var(--primary-green);">Connected</span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -119,5 +489,139 @@
     <footer>
         <p>Autonomous Greenhouse Monitoring System | Real-time Climate Control</p>
     </footer>
+
+    <script>
+        // Mock data generator
+        function mockDataGenerator() {
+            return {
+                temperature: parseFloat((22 + (Math.random() * 4 - 2)).toFixed(1)),
+                humidity: parseFloat((60 + (Math.random() * 10 - 5)).toFixed(1)),
+                co2: Math.round(450 + (Math.random() * 100 - 50)),
+                pressure: parseFloat((1013 + (Math.random() * 20 - 10)).toFixed(2)),
+                light: Math.round((10000 + (Math.random() * 5000 - 2500)) / 1000),
+                soil: parseFloat((50 + (Math.random() * 10 - 5)).toFixed(1))
+            };
+        }
+
+        // Animate value updates
+        function animateValue(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.classList.add('animate-pulse');
+            setTimeout(() => {
+                element.textContent = newValue;
+                setTimeout(() => {
+                    element.classList.remove('animate-pulse');
+                }, 300);
+            }, 150);
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            const data = mockDataGenerator();
+            
+            // Update dashboard values
+            animateValue('temperature-value', data.temperature);
+            animateValue('humidity-value', data.humidity);
+            animateValue('co2-value', data.co2);
+            animateValue('pressure-value', data.pressure);
+            animateValue('light-value', data.light);
+            animateValue('soil-value', data.soil);
+            
+            // Update sensor page values
+            animateValue('sensor-temperature-value', data.temperature);
+            animateValue('sensor-humidity-value', data.humidity);
+            animateValue('sensor-co2-value', data.co2);
+            animateValue('sensor-pressure-value', data.pressure);
+            animateValue('sensor-light-value', data.light);
+            animateValue('sensor-soil-value', data.soil);
+            
+            // Update progress bars
+            document.getElementById('temperature-bar').style.width = `${Math.min(100, Math.max(0, (data.temperature - 10) / (35 - 10) * 100))}%`;
+            document.getElementById('humidity-bar').style.width = `${Math.min(100, Math.max(0, data.humidity))}%`;
+            document.getElementById('co2-bar').style.width = `${Math.min(100, Math.max(0, (data.co2 - 200) / (2000 - 200) * 100))}%`;
+            document.getElementById('pressure-bar').style.width = `${Math.min(100, Math.max(0, (data.pressure - 980) / (1040 - 980) * 100))}%`;
+            document.getElementById('light-bar').style.width = `${Math.min(100, Math.max(0, data.light / 20 * 100))}%`;
+            document.getElementById('soil-bar').style.width = `${Math.min(100, Math.max(0, data.soil))}%`;
+            
+            // Update status indicators
+            updateStatus('temperature', data.temperature, 18, 27, 10, 35);
+            updateStatus('humidity', data.humidity, 50, 70, 30, 85);
+            updateStatus('co2', data.co2, 800, 1200, 300, 2000);
+            updateStatus('pressure', data.pressure, 1000, 1030, 980, 1040);
+            updateStatus('light', data.light, 10, 15, 5, 20);
+            updateStatus('soil', data.soil, 40, 60, 20, 80);
+            
+            // Update timestamps
+            const now = new Date().toLocaleTimeString();
+            document.getElementById('last-updated').textContent = now;
+            document.getElementById('sensors-last-updated').textContent = now;
+        }
+
+        // Update status indicators
+        function updateStatus(sensor, value, optimalMin, optimalMax, criticalMin, criticalMax) {
+            const statusElement = document.getElementById(`${sensor}-status`);
+            let statusText = "Optimal";
+            let statusClass = "status-normal";
+            
+            if (value < criticalMin || value > criticalMax) {
+                statusText = "Critical";
+                statusClass = "status-alert";
+            } else if (value < optimalMin || value > optimalMax) {
+                statusText = "Warning";
+                statusClass = "status-warning";
+            }
+            
+            statusElement.textContent = statusText;
+            statusElement.className = `status ${statusClass}`;
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to selected tab
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.getAttribute('data-tab'));
+                });
+            });
+            
+            // Set up refresh buttons
+            document.getElementById('refresh-btn').addEventListener('click', updateDashboard);
+            document.getElementById('sensors-refresh-btn').addEventListener('click', updateDashboard);
+            
+            // Set up sensor card clicks
+            document.querySelectorAll('.sensor-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    alert(`Detailed information for ${this.querySelector('h3').textContent} would appear here.`);
+                });
+            });
+            
+            // Initial update
+            updateDashboard();
+            
+            // Set up auto-refresh every 5 seconds
+            setInterval(updateDashboard, 5000);
+        });
+    </script>
 </body>
 </html>
